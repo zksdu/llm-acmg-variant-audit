@@ -35,31 +35,29 @@ github_submission/
 │   ├── manuscript_JGG.md              # JGG submission version (English)
 │   └── manuscript_draft_EN.md         # Full English draft with all sections
 │
-├── figures/                           # Publication figures
-│   ├── fig1.pdf/png/tiff              # Model performance comparison
-│   ├── fig2.pdf/png/tiff              # Evidence gradient analysis
-│   ├── fig3.pdf/png/tiff              # AF ablation study
-│   ├── fig4.pdf/png/tiff              # Cost-latency profiling
-│   ├── fig5.pdf/png/tiff              # Determinism analysis
-│   └── jgg/                           # JGG-format figures (4 panels)
-│       ├── fig1_JGG.pdf/png/tiff
-│       ├── fig2_JGG.pdf/png/tiff
-│       ├── fig3_JGG.pdf/png/tiff
-│       └── fig4_JGG.pdf/png/tiff
+├── figures/                           # Publication figures (5 main)
+│   ├── fig1.pdf/png/tiff              # Nine-model dual-metric performance + FP
+│   ├── fig2.pdf/png/tiff              # Evidence availability (AF ablation)
+│   ├── fig3.pdf/png/tiff              # Determinism + "Likely" tier collapse
+│   ├── fig4.pdf/png/tiff              # Fate of gold-standard Benign variants
+│   └── fig5.pdf/png/tiff              # Behavioral dashboard (6 dimensions)
 │
 ├── data/                              # Key datasets & analysis results
-│   ├── clinvar_testset_temporal.csv   # 5,000-variant temporal test set
-│   ├── experiment_results_variant.csv # Main experiment results (9 models)
-│   ├── determ_200.csv                 # Determinism test (200 variants x 3 runs)
-│   ├── conflicting_sample_300.csv     # Conflicting-interpretation variants
-│   ├── mavedb_testset.csv             # MaveDB functional-effect variants
-│   ├── consistency_50.csv             # Within-session consistency
-│   ├── statistics_analysis.md         # Statistical analysis report
-│   ├── fiveclass_analysis.md          # 5-class boundary analysis
-│   ├── cost_profiling.md              # API cost & latency profiling
-│   ├── consensus_analysis.md          # Multi-model consensus analysis
-│   ├── conflicting_analysis.md        # Conflicting variants analysis
-│   └── mavedb_analysis.md             # MaveDB sub-experiment analysis
+│   ├── clinvar_testset_temporal.csv   # 5,000-variant temporal test set (main)
+│   ├── variant_classification_results_all.csv  # ALL 45,000 raw model outputs
+│   ├── expert_panel_candidates.csv    # 900 expert-panel gold-standard variants
+│   ├── expert_panel_exclusive_800.csv # 800 exclusive validation variants
+│   ├── expert_panel_results.csv       # Expert-panel model outputs (5-class)
+│   ├── clinvar_testset_af[_only].csv  # AF-ablation test sets
+│   ├── af_*_results.csv               # AF-ablation raw outputs (4 batches)
+│   ├── conflicting_sample_300.csv + conflicting_results.csv
+│   ├── mavedb_testset.csv + mavedb_results.csv
+│   ├── prompt_sym_qwen_5000.csv       # Prompt-symmetry robustness check
+│   ├── determ_200*.csv                # Determinism test sets + re-run outputs
+│   ├── consistency_50.csv + consistency_results.csv
+│   ├── ep_determ_intl_results.csv     # International determinism re-runs
+│   ├── alphamissense_matched.csv      # AlphaMissense comparison subset
+│   └── *_analysis.md                  # 6 sub-experiment analysis reports
 │
 ├── scripts/                           # Reproducible analysis code
 │   ├── preprocess_clinvar.py          # ClinVar data extraction & filtering

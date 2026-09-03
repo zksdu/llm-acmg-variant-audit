@@ -32,8 +32,7 @@ github_submission/
 ├── .gitignore
 │
 ├── manuscript/                        # Paper text
-│   ├── manuscript_JGG.md              # JGG submission version (English)
-│   └── manuscript_draft_EN.md         # Full English draft with all sections
+│   └── manuscript_JGG.md              # Submission manuscript (English, canonical)
 │
 ├── figures/                           # Publication figures (5 main)
 │   ├── fig1.pdf/png/tiff              # Nine-model dual-metric performance + FP
@@ -62,7 +61,9 @@ github_submission/
 │   ├── consistency_50.csv + consistency_results.csv
 │   ├── ep_determ_intl_results.csv     # International determinism re-runs
 │   ├── alphamissense_matched.csv      # AlphaMissense comparison subset
-│   └── *_analysis.md                  # 6 sub-experiment analysis reports
+│   ├── bootstrap_gene_analysis.md    # Gene-level cluster-bootstrap CIs
+│   ├── surface_cue_analysis.md       # LoF surface-cue stratification
+│   └── *_analysis.md                  # Sub-experiment analysis reports
 
 Verified: `python scripts/generate_figures_v2.py` runs end-to-end inside this
 repository and reproduces all five publication figures byte-identically.

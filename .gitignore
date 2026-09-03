@@ -40,3 +40,6 @@ data/_merge_interim.csv
 # API keys (never commit)
 docs/外部模型key配置_勿上传.md
 docs/EM账号信息_勿上传.md
+
+# Regenerable script outputs
+docs/

@@ -45,11 +45,16 @@ github_submission/
 ├── data/                              # Key datasets & analysis results
 │   ├── clinvar_testset_temporal.csv   # 5,000-variant temporal test set (main)
 │   ├── variant_classification_results_all.csv  # ALL 45,000 raw model outputs
+│   ├── variant_classification_results_foreign.csv  # Intl-model batch (15,000)
 │   ├── expert_panel_candidates.csv    # 900 expert-panel gold-standard variants
 │   ├── expert_panel_exclusive_800.csv # 800 exclusive validation variants
-│   ├── expert_panel_results.csv       # Expert-panel model outputs (5-class)
-│   ├── clinvar_testset_af[_only].csv  # AF-ablation test sets
+│   ├── expert_panel_results.csv       # Expert-panel outputs, domestic (5-class)
+│   ├── expert_panel_intl_exclusive.csv # Expert-panel outputs, international
+│   ├── clinvar_testset_af[_only].csv  # AF-ablation test sets (400-variant)
+│   ├── af_p_only.csv + af_p_results_on.csv  # AF P-subset (150 × 2)
 │   ├── af_*_results.csv               # AF-ablation raw outputs (4 batches)
+│   ├── experiment_results_all6.csv + variant_classification_results_*.csv
+│   │                                  # Per-model intermediate results
 │   ├── conflicting_sample_300.csv + conflicting_results.csv
 │   ├── mavedb_testset.csv + mavedb_results.csv
 │   ├── prompt_sym_qwen_5000.csv       # Prompt-symmetry robustness check
@@ -58,6 +63,9 @@ github_submission/
 │   ├── ep_determ_intl_results.csv     # International determinism re-runs
 │   ├── alphamissense_matched.csv      # AlphaMissense comparison subset
 │   └── *_analysis.md                  # 6 sub-experiment analysis reports
+
+Verified: `python scripts/generate_figures_v2.py` runs end-to-end inside this
+repository and reproduces all five publication figures byte-identically.
 │
 ├── scripts/                           # Reproducible analysis code
 │   ├── preprocess_clinvar.py          # ClinVar data extraction & filtering

@@ -56,6 +56,9 @@ github_submission/
 │   │                                  # Per-model intermediate results
 │   ├── conflicting_sample_300.csv + conflicting_results.csv
 │   ├── mavedb_testset.csv + mavedb_results.csv
+│   ├── blinded2000_set.csv + blinded2000_results.csv  # Dedicated fully
+│   │                                  # blinded set (2,000) + 6,000 outputs
+│   ├── blinded2000_analysis.md        # Dedicated-set analysis (Table S4)
 │   ├── prompt_sym_qwen_5000.csv       # Prompt-symmetry robustness check
 │   ├── determ_200*.csv                # Determinism test sets + re-run outputs
 │   ├── consistency_50.csv + consistency_results.csv

@@ -18,8 +18,8 @@ This study audits the reliability of 9 large language models (6 Chinese + 3 inte
 | **All-inclusive accuracy** | 61.8% (DeepSeek V4-pro) to 76.5% (Gemini 3 Flash) |
 | **Conditional accuracy** | 81.2% (V4-pro) to 98.7% (DeepSeek coder) |
 | **False Pathogenic rate** | 1.3% (chat/coder) to 28.4% (V4-pro) |
-| **AF evidence effect** | Benign sensitivity +57.8 pp when provided |
-| **Consensus voting** | 98.4% conditional accuracy (n=2,911) |
+| **AF evidence effect** | Benign sensitivity up to +60.1 pp when provided |
+| **Consensus voting** | 98.3% conditional accuracy (n=2,915) |
 
 ---
 

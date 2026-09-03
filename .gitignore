@@ -1,0 +1,42 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+dist/
+build/
+*.egg
+
+# Environment
+.env
+.venv/
+venv/
+env/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Large raw data (not distributed)
+data/variant_summary.txt.gz
+data/clinvar.vcf.gz
+data/AlphaMissense_gene_hg38.tsv.gz
+data/MaveDB_variants.tsv.gz
+data/gnomad_*.vcf.gz
+data/gnomad_*.tsv.gz
+
+# Temporary / intermediate files
+data/_merge_interim.csv
+*.tmp
+*.bak
+
+# API keys (never commit)
+docs/外部模型key配置_勿上传.md
+docs/EM账号信息_勿上传.md

@@ -125,6 +125,11 @@ python scripts/analyze_consensus.py
 
 # 4. Generate figures
 python scripts/generate_figures_v2.py
+
+# 5. Verification suite (no network needed)
+python scripts/final_gate.py          # 101 submission assertions
+python scripts/table_cell_audit.py    # docx tables vs. raw data
+python scripts/fig_geom_check.py      # figure legend-overlap / text-spill check
 ```
 
 ---

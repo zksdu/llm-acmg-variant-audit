@@ -87,10 +87,7 @@ repository and reproduces all five publication figures byte-identically.
 │   ├── analyze_consensus.py           # Consensus voting analysis
 │   ├── statistics_analysis.py         # Core statistics computation
 │   ├── cost_profiling.py              # API cost & latency profiling
-│   ├── generate_figures.py            # Original figure generation
-│   ├── generate_figures_v2.py         # Revised figure generation (v2)
-│   ├── generate_figures_jgg.py        # JGG-format figure generation
-│   ├── build_jgg.py                   # JGG manuscript builder
+│   ├── generate_figures_v2.py         # Publication figure generation (data-driven, byte-reproducible)
 │   ├── build_docx.py                  # DOCX manuscript builder
 │   ├── build_docx_cn.py               # Chinese DOCX builder
 │   └── download_segments.py           # UCSC genome browser segment download

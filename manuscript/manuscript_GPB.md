@@ -6,7 +6,7 @@
 
 ## Abstract
 
-Large language models (LLMs) are increasingly proposed for ACMG/AMP variant classification, but their training corpora include public variant databases, so reported accuracy may reflect label memorization rather than reasoning. We audited nine LLMs (six Chinese, three international flagships; 45,000 evaluations) on 5,000 ClinVar variants whose gold-standard labels postdate every model's training cutoff (temporal blinding), with independent validation on 900 expert-panel-curated variants. Under blinding, current-generation models achieved 61.8–71.6% all-inclusive accuracy (86–93% on expert-panel variants); conservative models reached 97.8–98.7% conditional accuracy with 1.3–2.5% Benign-to-Pathogenic false-positive rates, whereas reasoning models mislabeled 22–28% of Benign variants as Pathogenic. Adding allele-frequency evidence raised Benign sensitivity by up to 60.1 percentage points. On a dedicated fully blinded set (n = 2,000), Gemini and Claude were statistically indistinguishable (81.4% vs. 80.2%), while GPT-5.6-terra fell to 64.7% with 25.0% false positives. LLM variant interpretation is trustworthy only under blinded model selection, complete evidence provision, and abstention-as-human-review policies. All data and analysis code are archived at Zenodo (DOI: 10.5281/zenodo.22299737).
+Large language models (LLMs) are increasingly proposed for ACMG/AMP variant classification, but their training corpora include public variant databases, so reported accuracy may reflect label memorization rather than reasoning. We audited nine LLMs (six Chinese, three international flagships; 45,000 evaluations) on 5,000 ClinVar variants whose gold-standard labels postdate every model's training cutoff (temporal blinding), with independent validation on 900 expert-panel-curated variants. Under blinding, current-generation models achieved 61.8–71.6% all-inclusive accuracy (86–93% on expert-panel variants); conservative models reached 97.8–98.7% conditional accuracy with 1.3–2.5% Benign-to-Pathogenic false-positive rates, whereas reasoning models mislabeled 22–28% of Benign variants as Pathogenic. Adding allele-frequency evidence raised Benign sensitivity by up to 60.1 percentage points. On a dedicated fully blinded set (n = 2,000), Gemini and Claude were statistically indistinguishable (81.4% vs. 80.2%), while GPT-5.6-terra fell to 64.7% with 25.0% false positives. LLM variant interpretation is trustworthy only under blinded model selection, complete evidence provision, and abstention-as-human-review policies. All data and analysis code are archived at Zenodo (DOI: 10.5281/zenodo.22637274).
 
 ## Introduction
 
@@ -325,12 +325,12 @@ temporally blinded test sets, gold standards, all 45,000 raw model outputs (four
 rows failed on relay/network errors and, per the all-inclusive convention, are
 counted as errors rather than excluded), the dedicated fully blinded set and its 6,000 raw outputs,
 and analysis scripts are available at https://github.com/zksdu/llm-acmg-variant-audit
-(archived on Zenodo, DOI: 10.5281/zenodo.22299737).
+(archived on Zenodo, DOI: 10.5281/zenodo.22637274).
 
 ## Code availability
 
 Custom analysis code is available at https://github.com/zksdu/llm-acmg-variant-audit
-(archived on Zenodo, DOI: 10.5281/zenodo.22299737). The pipeline uses the Python 3 standard library only;
+(archived on Zenodo, DOI: 10.5281/zenodo.22637274). The pipeline uses the Python 3 standard library only;
 sampling is byte-reproducible at seed 42.
 
 ## CRediT authorship contribution statement

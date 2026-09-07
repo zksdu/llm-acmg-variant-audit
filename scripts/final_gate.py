@@ -60,7 +60,7 @@ checks = {
     '专用盲集设计': '2,000 newly sampled variants' in full and 'pool: 4,772' in full,
     '盲分层无国际胜出': 'no international model outperforms the best domestic models' in full,
     '摘要-AF': '60.1 percentage points' in full,
-    '摘要-DOI尾注': 'zenodo.22299737' in full,
+    '摘要-DOI尾注': 'zenodo.22637274' in full,
     '摘要词数≤200': len(re.findall(r'\S+', re.search(r'## Abstract\n\n(.+?)\n\n## Introduction', (ROOT / 'docs' / 'manuscript_GPB.md').read_text(encoding='utf-8'), re.S).group(1))) <= 200,
 
     # ===== 表1 =====
@@ -135,7 +135,7 @@ checks = {
     '关键词三方一致(6个)': _keywords_ok(),
     '正文词数<6000': (lambda m: len(re.findall(r'\S+', m)) < 6000)(
         re.sub(r'^\|.*$', '', (ROOT / 'docs' / 'manuscript_GPB.md').read_text(encoding='utf-8').split('## References')[0], flags=re.M)),
-    'Zenodo DOI': '10.5281/zenodo.22299737' in full,
+    'Zenodo DOI': '10.5281/zenodo.22637274' in full,
 
     # ===== 参考文献（Vancouver；字段经 Crossref/arXiv 核验）=====
     'R-MaveDB': '10.1186/s13059-019-1845-6' in full and ';20(1):223' in full and 'Esposito D' in full,

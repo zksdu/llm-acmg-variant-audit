@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-build_docx.py — manuscript_JGG.md → 投稿用 Word（submission_JGG.docx）
+build_docx.py — manuscript_GPB.md → 投稿用 Word（submission_GPB.docx）
 
 处理：标题页、##/### 标题、段落（**粗体**/*斜体*）、Markdown 表格、
 引用块跳过、内嵌图片行跳过（图单独上传）。
@@ -16,24 +16,24 @@ from docx.enum.text import WD_ALIGN_PARAGRAPH
 
 DOCS = Path(__file__).parent.parent / "docs"
 
-TITLE = "Multi-vendor evaluation of large language models for ACMG/AMP variant classification with controlled data contamination"
-AUTHOR = "Bing Song¹, Kai Zhang²,*"
-AFFIL_1 = "¹The Third Affiliated Hospital of Guangzhou Medical University, Guangzhou, Guangdong, China"
-AFFIL_2 = "²Guangdong Communication Polytechnic, Guangzhou, Guangdong, China"
-EMAIL = "zhangkai@gdcp.edu.cn"
 RUNNING = "Multi-vendor LLM Variant Classification"
-KEYWORDS = ("variant classification; ACMG/AMP; large language models; data leakage; "
-            "ClinVar; reliability audit; temporal blinding")
-ABSTRACT = """Background. Large language models (LLMs) are increasingly proposed for ACMG/AMP variant classification, but training corpora include ClinVar and ClinGen, so reported accuracy may reflect label memorization rather than reasoning.
+AUTHOR = "Bing Song\u00b9, Kai Zhang\u00b2,*"
+AFFIL_1 = "\u00b9The Third Affiliated Hospital of Guangzhou Medical University, Guangzhou, Guangdong, China"
+AFFIL_2 = "\u00b2Guangdong Communication Polytechnic, Guangzhou, Guangdong, China"
+EMAIL = "zhangkai@gdcp.edu.cn"
 
-Objective. To audit LLM variant-classification reliability under controlled label leakage, across vendors and evidence conditions.
+# --- 以下内容从 manuscript_GPB.md 运行时提取（单一事实来源，杜绝三副本漂移） ---
+MD_SRC = DOCS / "manuscript_GPB.md"
+MD_TEXT = MD_SRC.read_text(encoding="utf-8")
 
-Methods. On a temporally blinded test set of 5,000 ClinVar variants (all assessed after January 2026), we evaluated six Chinese LLMs (30,000 evaluations) and three international flagships at full scale (15,000 additional evaluations), with independent validation on 900 expert-panel variants.
+def _extract(pattern, text, flags=0):
+    m = re.search(pattern, text, flags)
+    assert m, f"extraction failed: {pattern}"
+    return m.group(1).strip()
 
-Results. Current-generation models achieved 61.8–71.6% all-inclusive accuracy under temporal blinding, rising to 86–93% on expert-panel variants. Conservative models reached 97.8–98.7% conditional accuracy with FP rates under 4.7%, while reasoning models reached 81.2–85.2% with FP rates up to 28.4%. Providing allele-frequency evidence raised Benign sensitivity by up to 60.1 pp. On a dedicated fully blinded set (n = 2,000; all labels after every model’s training cutoff), Gemini and Claude were statistically indistinguishable (81.4% vs. 80.2%; both ≈96.5% conditional, FP 4–5%), while GPT-5.6-terra fell to 64.7% with 25.0% false positives.
-
-Conclusions. LLM variant interpretation is reliable only under blinded model selection, complete evidence (allele frequency mandatory), and abstention-as-human-review policies."""
-
+TITLE = _extract(r"\*\*Title: (.+?)\*\*$", MD_TEXT, re.M)
+KEYWORDS = _extract(r"\*\*Keywords:\*\* (.+)$", MD_TEXT, re.M)
+ABSTRACT = _extract(r"## Abstract\n\n(.+?)\n\n## Introduction", MD_TEXT, re.S)
 
 INLINE = re.compile(r"(\*\*.+?\*\*|\*[^*\n]+?\*)")
 
@@ -116,7 +116,7 @@ def main():
     doc.add_page_break()
 
     # ===== 正文 =====
-    src = (DOCS / "manuscript_JGG.md").read_text(encoding="utf-8")
+    src = MD_TEXT
     lines = src.splitlines()
     i = 0
     # 跳过文件头（# 标题行、> 引用块、--- 分隔、Abstract 占位与 Keywords 段）
@@ -160,7 +160,7 @@ def main():
     if buf:
         add_table(doc, buf)
 
-    out = DOCS / "submission_JGG.docx"
+    out = DOCS / "submission_GPB.docx"
     doc.save(out)
     print(f"\u2713 {out}")
     d2 = Document(str(out))

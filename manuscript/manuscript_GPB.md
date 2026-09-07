@@ -1,28 +1,20 @@
-# Multi-vendor evaluation of large language models for ACMG/AMP variant classification with controlled data contamination
+**Title: Multi-vendor evaluation of large language models for ACMG/AMP variant classification with controlled data contamination**
 
-> JGG submission version. Keywords: variant classification; ACMG/AMP; large language models; data leakage; ClinVar; reliability audit; temporal blinding.
+**Keywords:** variant classification; ACMG/AMP; large language models; data leakage; ClinVar; temporal blinding
 
 ---
 
 ## Abstract
 
-**Background.** Large language models (LLMs) are increasingly proposed for ACMG/AMP variant classification, but training corpora include ClinVar and ClinGen, so reported accuracy may reflect label memorization rather than reasoning.
-
-**Objective.** To audit LLM variant-classification reliability under controlled label leakage, across vendors and evidence conditions.
-
-**Methods.** On a temporally blinded test set of 5,000 ClinVar variants (all assessed after January 2026), we evaluated six Chinese LLMs (30,000 evaluations) and three international flagships at full scale (15,000 additional evaluations), with independent validation on 900 expert-panel variants.
-
-**Results.** Current-generation models achieved 61.8–71.6% all-inclusive accuracy under temporal blinding, rising to 86–93% on expert-panel variants. Conservative models reached 97.8–98.7% conditional accuracy with FP rates under 4.7%, while reasoning models reached 81.2–85.2% with FP rates up to 28.4%. Providing allele-frequency evidence raised Benign sensitivity by up to 60.1 pp. On a dedicated fully blinded set (n = 2,000; all labels after every model’s training cutoff), Gemini and Claude were statistically indistinguishable (81.4% vs. 80.2%; both ≈96.5% conditional, FP 4–5%), while GPT-5.6-terra fell to 64.7% with 25.0% false positives.
-
-**Conclusions.** LLM variant interpretation is reliable only under blinded model selection, complete evidence (allele frequency mandatory), and abstention-as-human-review policies.
+Large language models (LLMs) are increasingly proposed for ACMG/AMP variant classification, but their training corpora include public variant databases, so reported accuracy may reflect label memorization rather than reasoning. We audited nine LLMs (six Chinese, three international flagships; 45,000 evaluations) on 5,000 ClinVar variants whose gold-standard labels postdate every model's training cutoff (temporal blinding), with independent validation on 900 expert-panel-curated variants. Under blinding, current-generation models achieved 61.8–71.6% all-inclusive accuracy (86–93% on expert-panel variants); conservative models reached 97.8–98.7% conditional accuracy with 1.3–2.5% Benign-to-Pathogenic false-positive rates, whereas reasoning models mislabeled 22–28% of Benign variants as Pathogenic. Adding allele-frequency evidence raised Benign sensitivity by up to 60.1 percentage points. On a dedicated fully blinded set (n = 2,000), Gemini and Claude were statistically indistinguishable (81.4% vs. 80.2%), while GPT-5.6-terra fell to 64.7% with 25.0% false positives. LLM variant interpretation is trustworthy only under blinded model selection, complete evidence provision, and abstention-as-human-review policies. All data and analysis code are archived at Zenodo (DOI: 10.5281/zenodo.22299737).
 
 ## Introduction
 
-Clinical variant interpretation — classifying a germline variant as Pathogenic, Benign, or Uncertain per ACMG/AMP guidelines — is a bottleneck in genomic medicine: manual curation is expert-hours per variant and inconsistent across laboratories (Richards et al., 2015; Rehm et al., 2015). Large language models (LLMs) have been proposed as scalable interpreters (Landrum et al., 2020; Karczewski et al., 2020; Cheng et al., 2023), with recent work reporting near-expert agreement (e.g., AI-CURA reports expert-level consistency on curated variants (AI-CURA, 2026)).
+Clinical variant interpretation — classifying a germline variant as Pathogenic, Benign, or Uncertain per ACMG/AMP guidelines — is a bottleneck in genomic medicine: manual curation is expert-hours per variant and inconsistent across laboratories ([1,2]). Large language models (LLMs) have been proposed as scalable interpreters ([3-5]), with recent work reporting near-expert agreement (e.g., AI-CURA reports expert-level consistency on curated variants [6]).
 
-Two problems undermine these numbers. First, **training-data leakage**: LLM corpora contain public variant databases, so a model asked to classify a variant may reproduce a label it has memorized rather than reason about evidence. Published evaluations rarely control for this. Second, **vendor dependence**: results are typically reported for a single model family (Lin et al., 2025), leaving open whether any observed capability is a property of LLMs in general or of one training pipeline.
+Two problems undermine these numbers. First, **training-data leakage**: LLM corpora contain public variant databases, so a model asked to classify a variant may reproduce a label it has memorized rather than reason about evidence. Published evaluations rarely control for this. Second, **vendor dependence**: results are typically reported for a single model family [7], leaving open whether any observed capability is a property of LLMs in general or of one training pipeline.
 
-Existing variant-interpretation benchmarks do not resolve these concerns. VariantBench (Basharat et al., 2025) evaluates ACMG classifications and criterion-level justifications but without leakage control; VarLitBench (Saadat and Fellay, 2026) anchors on ClinGen-curated functional evidence whose public availability makes memorization possible; AI-CURA (AI-CURA, 2026) demonstrated clinical-grade performance on curated variants, again without controlling what the model saw during training. In the broader LLM literature, benchmark contamination is well documented (Sainz et al., 2023; Bordt et al., 2025), and temporally split evaluation has been proposed as a decontamination strategy (Golchin and Surdeanu, 2023). No study to date has combined temporal blinding, multi-vendor coverage, and independent expert-panel validation at scale for variant classification.
+Existing variant-interpretation benchmarks do not resolve these concerns. VariantBench [8] evaluates ACMG classifications and criterion-level justifications but without leakage control; VarLitBench [9] anchors on ClinGen-curated functional evidence whose public availability makes memorization possible; AI-CURA [6] demonstrated clinical-grade performance on curated variants, again without controlling what the model saw during training. In the broader LLM literature, benchmark contamination is well documented [10,11], and temporally split evaluation has been proposed as a decontamination strategy [12]. No study to date has combined temporal blinding, multi-vendor coverage, and independent expert-panel validation at scale for variant classification.
 
 Here we report an audit that combines all three controls: 6 LLMs from 4 vendors, 30,000 variant-model evaluations on a temporally blinded test set of 5,000 ClinVar variants (all expert-assessed after January 2026), with an independent 900-variant expert-panel validation set and three triangulation sub-experiments (allele-frequency ablation, conflicting-interpretation variants, and functional-effect variants). We address three questions: (RQ1) How reliable is LLM variant classification under label-leakage control? (RQ2) Do multi-model consensus and model choice improve reliability? (RQ3) How does reliability depend on the evidence available to the model?
 
@@ -71,7 +63,7 @@ HGVS protein notation can itself reveal the answer class: nonsense (p.Xxx###Ter)
 | Kimi-K2.6 | 99.8% | 77.7% | −22.1 pp |
 | Qwen3.7-max | 99.4% | 83.6% | −15.8 pp |
 
-**Finding 4 (Part of headline accuracy is name-reading).** Two-thirds of gold-standard Pathogenic variants (1,671/2,499) carry an LoF cue directly in their name, and on these, every model is near-ceiling (98.5–99.8%) — performance achievable without gene-disease knowledge beyond recognizing the notation. On the 828 uncued variants (missense, synonymous, splice-region), sensitivity drops to 67.8–83.6%, still well above the 50% base rate — models retain genuine discriminative signal, but 16–31 pp weaker. Naive accuracy metrics conflate these two regimes; a reliability audit should report both strata. Qwen degrades least (−15.8 pp), consistent with its overall lead.
+**Finding 4 (Part of headline accuracy is name-reading).** Two-thirds of gold-standard Pathogenic variants (1,671/2,499) carry an LoF cue directly in their name, where every model is near-ceiling (98.5–99.8%) — performance achievable from the notation alone. On the 828 uncued variants, sensitivity drops to 67.8–83.6% (still well above the 50% base rate; 16–31 pp weaker). Naive accuracy conflates these regimes; a reliability audit should report both strata. Qwen degrades least (−15.8 pp), consistent with its overall lead.
 
 ### Independent gold standard: ClinGen expert-panel review
 
@@ -108,11 +100,11 @@ The AF effect on Benign sensitivity is consistent across all nine tested models 
 
 ### Calibration
 
-Mean self-reported confidence (0.73–0.80 for the domestic models; 0.95 for Gemini) did not track all-inclusive accuracy across models (e.g., chat: confidence 0.78 vs. accuracy 49.4%; Kimi: 0.73 vs. 67.0%). Confidence is calibrated *within* a model's decision style, not across models; reasoning models over-express confidence relative to their conditional accuracy (V4-pro: 0.79 vs. 81.2%; MiMo: 0.80 vs. 85.2%).
+Mean self-reported confidence (0.73–0.80 domestic; 0.95 Gemini) did not track all-inclusive accuracy across models (chat: 0.78 vs. 49.4%; Kimi: 0.73 vs. 67.0%). Confidence calibrates *within* a model's decision style, not across models; reasoning models over-express confidence relative to conditional accuracy (V4-pro: 0.79 vs. 81.2%; MiMo: 0.80 vs. 85.2%).
 
 ### Five-class analysis (Fig. 3B): the "Likely" tier is absent
 
-The ACMG/AMP framework is five-class (Pathogenic / Likely pathogenic / Uncertain significance / Likely benign / Benign), and P vs. LP carry different clinical follow-up (e.g., LP requires confirmation). On the expert-panel set (which carries five-class labels; P: 303 + 3 compound P/LP, LP: 342, LB: 193, B: 59), **domestic models rarely emit a "Likely" class (Kimi 11/900 = 1.2%, coder 4/900 = 0.4%, chat 2/900 = 0.2%)** — the five-class output collapses to three (P / VUS / B).
+The ACMG/AMP framework is five-class (Pathogenic/Likely pathogenic/Uncertain significance/Likely benign/Benign), and P vs. LP carry different clinical follow-up (e.g., LP requires confirmation). On the expert-panel set (five-class labels: P 303 + 3 compound P/LP, LP 342, LB 193, B 59), **domestic models rarely emit a "Likely" class (Kimi 11/900 = 1.2%, coder 4/900 = 0.4%, chat 2/900 = 0.2%)** — the five-class output collapses to three (P / VUS / B).
 
 | Model | Exact five-class match | Likely-tier output | Cross-semantic errors (P↔B) |
 |---|---|---|---|
@@ -129,7 +121,7 @@ Strength polarization is systematic: 82% (Kimi) and 58% (chat) of gold-standard 
 
 ### Clinical risk stratification (Weighted Error Severity Index)
 
-To quantify clinical harm, we computed a Weighted Error Severity Index (WESI): Benign-to-Pathogenic misclassification = weight 4 (unnecessary prophylactic surgery, cascade screening), Pathogenic-to-Benign = weight 4 (missed diagnosis), unparseable output = weight 2 (delivery failure), VUS abstention = weight 0 (safe deferral).
+To quantify clinical harm we defined a Weighted Error Severity Index (WESI): Benign-to-Pathogenic misclassification = weight 4 (unnecessary prophylactic surgery, cascade screening), Pathogenic-to-Benign = weight 4 (missed diagnosis), unparseable output = weight 2 (delivery failure), VUS abstention = weight 0 (safe deferral).
 
 | Model | WESI | B-to-P (extreme) | Total extreme | Abstention |
 |---|---|---|---|---|
@@ -147,7 +139,7 @@ To quantify clinical harm, we computed a Weighted Error Severity Index (WESI): B
 
 ### Output determinism (Fig. 3A; reproducibility audit)
 
-Because a clinical system must return the *same* answer for the *same* variant, we re-ran 50 variants per model under identical settings (temperature = 0, same prompt, same endpoint; six models attempted, five completed — Claude returned relay capacity-limit errors (HTTP 502) on every attempt) and measured classification agreement with the original run.
+A clinical system must return the *same* answer for the *same* variant, so we re-ran 50 variants per model under identical settings (temperature 0; six models attempted, five completed — Claude returned relay capacity-limit errors (HTTP 502) on every attempt) and measured agreement with the original run.
 
 **Table S1. Re-run consistency (n = 50 variants per model; temperature 0).**
 
@@ -162,7 +154,7 @@ Because a clinical system must return the *same* answer for the *same* variant, 
 
 > Cross-check: the 100 expert-panel variants shared between the main test set and the dedicated 900-variant set were classified twice in independent runs (same model, same prompt); agreement was chat 99/100, coder 100/100, Kimi 97/100 — consistent with the determinism ranking above.
 
-**Finding 5 (Reasoning models are not deterministic — worsens with sample size).** At temperature = 0 (n = 200 per model), the determinism spectrum is: Kimi 96.0% > chat 92.5% > Claude 88.0% > Gemini 86.0% > GPT 78.0% > **V4-pro 40.0%**. Critically, the number of direct Benign↔Pathogenic flips (the clinically most consequential error direction): Kimi/chat/Claude = **0**, GPT = 10, Gemini = 15, V4-pro = 2. V4-pro changed its binary output on **60% of re-run variants** — half of its re-runs returned unparseable output (a delivery failure as consequential as a flip: the system yields no usable answer) — and at n = 50 the change rate was estimated at 36%; the larger sample reveals substantially worse non-determinism. Three models (chat, Kimi, Claude) never flip across semantic boundaries; their non-determinism is entirely VUS↔definitive shifts, which are clinically safe (changes abstention, not direction). Under a reliability-audit framing, non-determinism with cross-semantic flips is a first-class failure mode: **a model that returns contradictory clinical directions for the same input cannot be deployed regardless of its average accuracy.**
+**Finding 5 (Reasoning models are not deterministic — worsens with sample size).** At temperature = 0 (n = 200 per model), the determinism spectrum is: Kimi 96.0% > chat 92.5% > Claude 88.0% > Gemini 86.0% > GPT 78.0% > **V4-pro 40.0%**. Critically, the number of direct Benign↔Pathogenic flips (the clinically most consequential error direction): Kimi/chat/Claude = **0**, GPT = 10, Gemini = 15, V4-pro = 2. V4-pro changed its binary output on **60% of re-run variants** (half unparseable — a delivery failure as consequential as a flip) versus an estimated 36% at n = 50: the larger sample reveals worse non-determinism. Three models (chat, Kimi, Claude) never flip across semantic boundaries; their non-determinism is entirely VUS↔definitive shifts, clinically safe (changes abstention, not direction). **A model that returns contradictory clinical directions for the same input cannot be deployed regardless of average accuracy.**
 
 ### International extension: three foreign flagships at full scale
 
@@ -182,9 +174,9 @@ To test whether the domestic findings generalize across training ecosystems, we 
 | DeepSeek chat | DeepSeek | 49.4% | 98.6% | 49.9% | 1.4% | 69% |
 | DeepSeek coder | DeepSeek | 49.2% | 98.7% | 50.1% | 1.3% | 68% |
 
-**Finding 6 (The domestic findings generalize — and sharpen — internationally).** Three observations extend beyond the Chinese ecosystem. (i) **On the full set Gemini 3 Flash leads all nine models** (76.5% [75.3–77.7], +4.9 pp over the best domestic model; McNemar p = 1.7×10⁻¹³) with the lowest abstention (9.2%) — but this comparison is not cutoff-controlled: under full blinding the lead vanishes (statistical tie with Claude and Qwen; Table S4), so it may partly reflect residual label exposure. Nor does Gemini's full-set aggressive profile persist: on the dedicated blinded set its Benign→Pathogenic FP is 5.2% (vs. 27.8% on the full set), placing it alongside Claude in the *conservative* camp — while GPT-5.6-terra emerges as the aggressive outlier (FP 25.0%). (ii) **Claude behaves as a conservative model**: 97.0% conditional accuracy with 3.9% FP — an order of magnitude below the aggressive camp and closest to Kimi's (2.5%; Fisher exact p = 0.008, distinguishable but both single-digit), and it exceeds Kimi in all-inclusive accuracy (p = 2.7×10⁻³) while sitting below Qwen (p = 3.0×10⁻¹⁵). On the independent expert-panel set (Table S3), the same dichotomy sharpens: Gemini and GPT both show 36.4% false-positive rates (vs. Kimi 19.8% and chat/coder 7–8%), confirming that the aggressive/conservative split holds under the strongest gold standard across ecosystems. The conservative/aggressive dichotomy of Finding 2 is thus a property of model *behavior*, not vendor nationality (the full behavioral dashboard, Fig. 5, summarizes the six audited dimensions per model). (iii) **GPT-5.6-terra trails its foreign peers** (60.3%, significantly below Qwen: McNemar p = 4.7×10⁻⁹⁰) and sits below every current-generation domestic model — capability tracks neither nationality nor presumed price tier, reinforcing the audit's central message that model choice must be made on measured, blinded evidence rather than vendor reputation.
+**Finding 6 (The domestic findings generalize — and sharpen — internationally).** Three observations extend beyond the Chinese ecosystem. (i) **On the full set Gemini 3 Flash leads all nine models** (76.5% [75.3–77.7], +4.9 pp over the best domestic model; McNemar p = 1.7×10⁻¹³) with the lowest abstention (9.2%) — but this comparison is not cutoff-controlled: under full blinding the lead vanishes (statistical tie with Claude and Qwen; Table S4), so it may partly reflect residual label exposure. Nor does Gemini's full-set aggressive profile persist: on the dedicated blinded set its Benign→Pathogenic FP is 5.2% (vs. 27.8% on the full set), placing it alongside Claude in the *conservative* camp — while GPT-5.6-terra emerges as the aggressive outlier (FP 25.0%). (ii) **Claude behaves as a conservative model**: 97.0% conditional accuracy with 3.9% FP — closest to Kimi's 2.5% (Fisher exact p = 0.008, distinguishable but both single-digit); it exceeds Kimi all-inclusive (p = 2.7×10⁻³) while sitting below Qwen (p = 3.0×10⁻¹⁵). On the expert-panel set (Table S3) the dichotomy sharpens: Gemini and GPT both show 36.4% FP (vs. Kimi 19.8%, chat/coder 7–8%) — the conservative/aggressive split is a property of model *behavior*, not vendor nationality (behavioral dashboard in Fig. 5). (iii) **GPT-5.6-terra trails its foreign peers** (60.3%, significantly below Qwen: McNemar p = 4.7×10⁻⁹⁰) and sits below every current-generation domestic model — capability tracks neither nationality nor presumed price tier, reinforcing the audit's central message that model choice must be made on measured, blinded evidence rather than vendor reputation.
 
-**Fully blinded evaluation (Table S4).** Because the international models' cutoffs fall in early 2026, we evaluated them in two complementary fully blinded designs. First, on the main set's own ≥ 2026-04 slice (n = 907; P 753 / B 154; August run), the full-set ranking collapses to a three-way tie — Gemini 88.0% [85.7–89.9], Claude 87.1% [84.8–89.1], and the domestic leader Qwen 86.8% [84.4–88.8]; all pairwise McNemar p > 0.4. Second, on a **dedicated fully blinded set** — 2,000 newly sampled variants (seed 42; 1,000 Pathogenic / 1,000 Benign; pool: 4,772 eligible alleles last evaluated ≥ 2026-04; 342 overlap with the main set; identical prompts; single session) — the international picture reorders. **Gemini and Claude are statistically indistinguishable** (81.4% [79.6–83.0] vs. 80.2% [78.3–81.8]; two-proportion z = 1.0, p = 0.32; per-variant pairing unavailable for this run — see archived analysis), both pairing ≈96.5% conditional accuracy with FP rates of 4–5% — the conservative profile. **GPT-5.6-terra emerges as the aggressive outlier**: 64.7% all-inclusive (p < 10⁻³⁰ below both), 25.0% Benign→Pathogenic FP, Benign sensitivity 32.8%, and 58/2,000 unparseable outputs. Gemini's full-set aggressive profile (FP 27.8%) does not persist under full blinding; its FP estimate also differs between the two blinded runs (22.1% on the August stratum vs. 5.2% on the September dedicated set), consistent with its documented non-determinism and possible relay-side version drift — reinforcing that relay-served rankings require blinded, repeated verification. Claude is the only international model whose profile is stable across every estimate (FP 3.9–4.5%). Across both blinded designs, no international model outperforms the best domestic models.
+**Fully blinded evaluation (Table S4).** Because the international models' cutoffs fall in early 2026, we evaluated them in two complementary fully blinded designs. First, on the main set's own ≥ 2026-04 slice (n = 907; P 753 / B 154; August run), the full-set ranking collapses to a three-way tie — Gemini 88.0% [85.7–89.9], Claude 87.1% [84.8–89.1], and the domestic leader Qwen 86.8% [84.4–88.8]; all pairwise McNemar p > 0.4. Second, on a **dedicated fully blinded set** — 2,000 newly sampled variants (seed 42; 1,000 Pathogenic / 1,000 Benign; pool: 4,772 eligible alleles last evaluated ≥ 2026-04; 342 overlap with the main set; identical prompts; single session) — the international picture reorders. **Gemini and Claude are statistically indistinguishable** (81.4% [79.6–83.0] vs. 80.2% [78.3–81.8]; two-proportion z = 1.0, p = 0.32; per-variant pairing unavailable for this run — see archived analysis), both pairing ≈96.5% conditional accuracy with FP rates of 4–5% — the conservative profile. **GPT-5.6-terra emerges as the aggressive outlier**: 64.7% all-inclusive (p < 10⁻³⁰ below both), 25.0% Benign→Pathogenic FP, Benign sensitivity 32.8%, and 58/2,000 unparseable outputs. Gemini's full-set aggressive profile (FP 27.8%) does not persist under full blinding, and its FP differs between the two blinded runs (22.1% August stratum vs. 5.2% September set), consistent with documented non-determinism and possible relay-side version drift — relay-served rankings require blinded, repeated verification. Claude is the only international model whose profile is stable across every estimate (FP 3.9–4.5%). Across both blinded designs, no international model outperforms the best domestic models.
 
 **Table S4. Dedicated fully blinded set (n = 2,000; LastEvaluated ≥ 2026-04; 1,000 P / 1,000 B; single session).**
 
@@ -208,19 +200,19 @@ Qwen3.7-max was re-evaluated on the complete test set with the same system promp
 
 ### Principal findings
 
-Under label-leakage control (temporal blinding of the gold-standard label), current-generation LLMs classify 62–72% of variants correctly (all-inclusive), rising to 86–93% on expert-panel-reviewed variants. When conservative models commit to a call, they are right 97.8–98.7% of the time, mislabeling only 1.3–2.5% of Benign variants as Pathogenic; reasoning models, by contrast, mislabel 22–28% of Benign variants as Pathogenic — the clinically dangerous direction. An international extension (Gemini 3 Flash / GPT-5.6-terra / Claude Sonnet 5 at full scale) places Gemini first overall (76.5%) and shows the conservative/aggressive dichotomy spans ecosystems. These are substantially lower than unblinded reports of expert-level consistency (AI-CURA, 2026); interpreted as a reliability audit, they define the *operational envelope* in which an LLM's output can be trusted, rather than a ceiling on generalization: label memorization is controlled, and remaining performance reflects the evidence the model actually reasons with.
+Under label-leakage control (temporal blinding of the gold-standard label), current-generation LLMs classify 62–72% of variants correctly (all-inclusive), rising to 86–93% on expert-panel-reviewed variants. When conservative models commit to a call, they are right 97.8–98.7% of the time, mislabeling only 1.3–2.5% of Benign variants as Pathogenic; reasoning models, by contrast, mislabel 22–28% of Benign variants as Pathogenic — the clinically dangerous direction. An international extension (Gemini 3 Flash / GPT-5.6-terra / Claude Sonnet 5 at full scale) places Gemini first overall (76.5%) and shows the conservative/aggressive dichotomy spans ecosystems. These are substantially lower than unblinded expert-level reports [6]; interpreted as a reliability audit, they define the *operational envelope* in which an LLM output can be trusted rather than a ceiling on generalization: label memorization is controlled, and remaining performance reflects the evidence the model actually reasons with.
 
 ### Vendor choice matters more than ensemble size
 
-The gap between the best and worst model (+22.4 pp within the fully blinded domestic panel; up to +27.3 pp across the full nine-model set, an endpoint that is not cutoff-controlled for the international models; +25 pp expert-panel) exceeds the gain from any ensemble strategy we tested, and naive majority voting *reduced* accuracy below the best single model because conservative voters dominate ties. Two implications: (i) published "LLM accuracy" without model identity is meaningless; (ii) clinical deployments should select models on blinded benchmarks, not on ensemble size. The recommendation is model-specific — Kimi and Qwen excel on evidence-rich variants, while reasoning models (V4-pro, MiMo) commit more often but less reliably. The international extension sharpens this: on the full set Gemini 3 Flash leads (76.5%) but with a 27.8% Benign→Pathogenic FP rate (aggressive camp), while Claude pairs 97.0% conditional accuracy with 3.9% FP (conservative camp, closest to Kimi's 2.5%); under full blinding the ranking collapses to a tie, and camp assignment itself shifts — Gemini's aggressive profile dissolves (FP 5.2% blinded vs. 27.8% full-set) while GPT-5.6-terra becomes the aggressive outlier — behavior style remains the operative selection criterion, but it can change with label exposure and run conditions, detectable only by blinded, repeated evaluation (Table S4). Behavior style — not vendor, nationality, or price tier — is the operative selection criterion.
+The gap between best and worst model (+22.4 pp within the fully blinded domestic panel; up to +27.3 pp across the full nine-model set — not cutoff-controlled for the international models; +25 pp expert-panel) exceeds any ensemble gain we tested, and naive majority voting *reduced* accuracy below the best single model because conservative voters dominate ties. Two implications: (i) published “LLM accuracy” without model identity is meaningless; (ii) clinical deployments should select models on blinded benchmarks, not ensemble size. The recommendation is model-specific: Kimi and Qwen excel on evidence-rich variants, while reasoning models (V4-pro, MiMo) commit more often but less reliably. The international extension sharpens this: Gemini leads the full set (76.5%) but with 27.8% FP, Claude pairs 97.0% conditional with 3.9% FP; under full blinding the ranking collapses to a tie and camp assignment shifts (Gemini's aggressive profile dissolves, FP 5.2%; GPT-5.6-terra becomes the aggressive outlier) — detectable only by blinded, repeated evaluation (Table S4). Behavior style — not vendor, nationality, or price tier — is the operative selection criterion.
 
 ### Abstention is calibrated behavior, not conservatism
 
-Three independent experiments converge: models abstain more when evidence is missing (AF ablation: on gold-standard Benign variants, chat abstention falls 90%→31% once allele frequencies are provided), when experts disagree (conflicting variants: +22–39 pp abstention without being told), and when the task has no clinical evidence at all (MaveDB functional task: 73–93% abstention). LLMs behave like evidence-aware decision systems: they express uncertainty where evidence is weak and commit where it is strong. Clinically, this makes abstention a **trustworthy triage signal** — "the model said Uncertain, therefore review by a human" is a safe operating policy, and our data show the model is disproportionately Uncertain precisely when human review is needed.
+Three experiments converge: models abstain more when evidence is missing (AF ablation: chat abstention falls 90%→31% on gold-standard Benign variants once allele frequencies are provided), when experts disagree (conflicting variants: +22–39 pp abstention without being told), and when the task has no clinical evidence (MaveDB: 73–93%). Abstention is thus a **trustworthy triage signal** — "the model said Uncertain, therefore review by a human" is safe, and models are disproportionately Uncertain precisely when human review is needed.
 
 ### Reproducibility as a reliability property
 
-At temperature 0, chat-style models are exactly reproducible (100% over 50 re-runs), but the reasoning model V4-pro changed its binary output on 60% of 200 re-run variants (half of them unparseable outputs), including direct Benign↔Pathogenic flips. Average accuracy alone is therefore insufficient to audit a model for clinical use: a non-deterministic model cannot be deployed regardless of its mean performance, and reported single-run accuracies for such models are themselves noisy. The audit framing makes this explicit: determinism, like accuracy and abstention calibration, is a measured property we report per model rather than assume.
+At temperature 0, chat-style models are exactly reproducible (100% over 50 re-runs), but the reasoning model V4-pro changed its binary output on 60% of 200 re-run variants (half unparseable), including direct Benign↔Pathogenic flips. Average accuracy alone cannot audit a model for clinical use: a non-deterministic model cannot be deployed regardless of mean performance, and single-run accuracies of such models are themselves noisy. Determinism, like accuracy and abstention calibration, is a measured property we report per model rather than assume.
 
 ### The information-deficit explanation of Benign underperformance
 
@@ -228,7 +220,7 @@ The most striking baseline result — Benign sensitivity of 8.7–63.2% across t
 
 ### Relation to prior work
 
-AI-CURA (AI-CURA, 2026) demonstrated expert-consistency without leakage control; our label-blinded numbers (62–72% domestic, 60–77% including international) suggest that a substantial part of unblinded performance may be label memorization. VariantBench (Basharat et al., 2025) and VarLitBench (Saadat and Fellay, 2026) advance evaluation rigor — justifications and ClinGen-anchored evidence, respectively — but neither temporally blinds the gold standard nor spans vendors; we add both, plus independent expert-panel validation. Our conditional-accuracy framing (speak vs. abstain) reconciles the "impressive when confident" and "unusable overall" observations in prior reports. Positioning: whereas AI-CURA asks "can LLMs classify variants?", we ask "under which auditable conditions can an LLM's classification be trusted?" — the audit framing keeps our claims within what temporal blinding can actually establish.
+AI-CURA [6] demonstrated expert-consistency without leakage control; our label-blinded numbers (62–72% domestic, 60–77% including international) suggest that a substantial part of unblinded performance may be label memorization. VariantBench [8] and VarLitBench [9] advance evaluation rigor — justifications and ClinGen-anchored evidence, respectively — but neither temporally blinds the gold standard nor spans vendors; we add both, plus independent expert-panel validation. Our conditional-accuracy framing (speak vs. abstain) reconciles the "impressive when confident" and "unusable overall" observations in prior reports. Positioning: whereas AI-CURA asks "can LLMs classify variants?", we ask "under which auditable conditions can an LLM's classification be trusted?" — the audit framing keeps our claims within what temporal blinding can actually establish.
 
 ### Limitations
 
@@ -246,39 +238,39 @@ AI-CURA (AI-CURA, 2026) demonstrated expert-consistency without leakage control;
 
 ### Conclusion
 
-Under label-leakage control, LLM variant interpretation passes reliability audit under three conditions: the model is chosen on blinded evidence (vendor gap up to +22 pp among fully blinded domestic models; majority voting can hurt), complete evidence is provided (AF mandatory; up to +60 pp Benign sensitivity), and abstention is deployed as a human-review trigger. We provide a multi-vendor, temporally controlled, independently validated reliability audit, and recommend that (i) published accuracies report model identity, blinding status, and evidence conditions; (ii) clinical pilots adopt "Pathogenic calls auto-flag, Uncertain calls auto-escalate" operating policies; and (iii) future audits extend to non-Chinese vendors and additional task types.
+Under label-leakage control, LLM variant interpretation passes reliability audit under three conditions: the model is chosen on blinded evidence (vendor gap up to +22 pp among fully blinded domestic models; majority voting can hurt), complete evidence is provided (AF mandatory; up to +60 pp Benign sensitivity), and abstention is deployed as a human-review trigger. We recommend that (i) published accuracies report model identity, blinding status, and evidence conditions; (ii) clinical pilots adopt "Pathogenic calls auto-flag, Uncertain calls auto-escalate" policies; and (iii) future audits extend to more vendors and task types.
 
 ---
 
-## Materials and methods
+## Materials and Methods
 
 ### Data sources
 
 - **ClinVar variant_summary** (Aug 2026 release; 9,029,235 rows; 43 columns), used for test-set construction and gold-standard labels.
-- **ClinVar VCF (GRCh38)** (clinvar.vcf.gz; ~193 MB), used to attach population allele frequencies (AF_ESP, AF_EXAC, AF_TGP) by ALLELEID.
-- **MaveDB** (Esposito et al., 2019) (Ensembl-mapped release; 3,158,202 scored variants), used for the functional-effect triangulation experiment; gene symbols resolved via mygene.info (Wu et al., 2013) (RefSeq accession → symbol).
-- All data are public; download URLs in Data Availability.
+- **ClinVar VCF (GRCh38)** (clinvar.vcf.gz; ~193 MB), used to attach population allele frequencies (AF_ESP/AF_EXAC/AF_TGP) by ALLELEID.
+- **MaveDB** [13] (Ensembl-mapped release; 3,158,202 scored variants), for the functional-effect experiment; gene symbols via mygene.info [14].
+- All data are public (URLs in Data Availability).
 
 ### Temporally blinded test set (label-leakage control)
 
 The central design decision: LLM training corpora contain ClinVar history, so evaluation must use variants whose **gold-standard labels** were produced **after** the model training cutoff. This controls the label-memorization channel specifically; prior *evidence* (literature, submissions) may still be present in training data, and we therefore frame the study as a reliability audit under controlled label leakage rather than a generalization test (see Discussion).
 
-- Model cutoffs (verified 2026-08): all six domestic models have training cutoffs ≤ 2025 (DeepSeek V4 ~Dec 2025; Kimi ~2025-01; Qwen/MiMo ≤ 2025-05). The three international models have later official knowledge cutoffs: Claude Sonnet 5 ~2026-01, GPT-5.6-terra ~2026-02-16, and the Gemini Flash model ~2026-03. The relay-served identifier is gemini-3-flash; Google's Flash line spans versions 3.5–3.8 with official cutoffs ranging 2025-01 to 2026-03, the relay does not expose the exact served version, and our cutoff-sensitive analyses conservatively assume the latest (≈2026-03) — the most blinding-demanding assumption.
-- We require **LastEvaluated ≥ 2026-01-01**, which fully label-blinds the six domestic models. For the international models, however, labels evaluated 2026-01 through 2026-03 may fall at or before their cutoffs (Claude: 2,097 variants, 41.9%; GPT: 3,769 at most, 75.4% — cutoff falls mid-February, so true exposure is lower; Gemini: 4,093, 81.9% of the test set). International results are therefore reported on the full set, on the in-set fully blinded stratum (LastEvaluated ≥ 2026-04, n = 907), and on a **dedicated fully blinded set** — 2,000 variants (1,000 P / 1,000 B) sampled seed 42 from all eligible ≥ 2026-04 alleles (pool 4,772: P 2,611 / B 2,161; 342 overlap with the main set), evaluated with identical prompts in a single session (International extension, Table S4).
+- Model cutoffs (verified 2026-08): six domestic models ≤ 2025 (DeepSeek V4 ~Dec 2025; Kimi ~2025-01; Qwen/MiMo ≤ 2025-05). International cutoffs: Claude Sonnet 5 ~2026-01, GPT-5.6-terra ~2026-02-16, Gemini Flash model ~2026-03. The relay identifier is gemini-3-flash; Google's Flash line spans 3.5–3.8 (official cutoffs 2025-01–2026-03), the relay does not expose the served version, and cutoff-sensitive analyses conservatively assume the latest (≈2026-03) — the most blinding-demanding assumption.
+- We require **LastEvaluated ≥ 2026-01-01**, fully blinding the six domestic models. For international models, labels evaluated 2026-01–2026-03 may fall at or before their cutoffs (Claude 2,097 variants, 41.9%; GPT at most 3,769, 75.4% — cutoff mid-February, so true exposure is lower; Gemini 4,093, 81.9%). International results are therefore reported on the full set, on the in-set fully blinded stratum (≥ 2026-04, n = 907), and on a **dedicated fully blinded set** — 2,000 variants (1,000 P / 1,000 B; seed 42; eligible ≥ 2026-04 pool 4,772: P 2,611 / B 2,161; 342 overlap with the main set), identical prompts, single session (International extension, Table S4).
 - Eligibility: unambiguous clinical classification (Pathogenic or Benign only; "Likely" and compound terms excluded from the P/B gold standard), a HGVS name, and no conflicting classification.
-- De-duplication by ALLELEID: variant_summary lists one row per allele per origin; collapsing to one row per allele removes 49.6% of raw rows (9,029,235 rows → 4,548,781 unique alleles).
-- Stratified sampling: 2,500 P-side + 2,500 Benign, seed 42 (reproducible), yielding n = 5,000 (2,499 strict Pathogenic + 1 compound P-side label excluded from analysis as unevaluable; 4,999 with unambiguous P/B gold labels).
-- Result: all 5,000 variants were last evaluated between 2026-01 and 2026-07 (Jan 2,097 / Feb 1,672 / Mar 324 / Apr 412 / May 263 / Jun 199 / Jul 33) — after the training cutoff of all six domestic models, which therefore cannot have seen these labels during training; the international models' partial overlap with this window is quantified above and controlled by the fully blinded designs.
+- De-duplication by ALLELEID (one row per allele): removes 49.6% of raw rows (9,029,235 → 4,548,781 unique alleles).
+- Stratified sampling: 2,500 P-side + 2,500 Benign, seed 42 (reproducible), n = 5,000 (2,499 strict Pathogenic + 1 compound P-side label excluded as unevaluable; 4,999 unambiguous P/B).
+- Result: all 5,000 variants were last evaluated 2026-01–2026-07 (Jan 2,097 / Feb 1,672 / Mar 324 / Apr 412 / May 263 / Jun 199 / Jul 33) — after every domestic training cutoff, so these labels were unseen in training; the international models' partial overlap is quantified above and controlled by the fully blinded designs.
 
 ### Gold standards
 
-- **Primary**: ClinVar aggregate classification (Pathogenic/Benign binary).
+- **Primary**: ClinVar aggregate classification (Pathogenic/Benign binary). - Unparseable/empty outputs recorded as parse failures and counted as errors (0.04-0.60% across models; see Models section for per-model detail). The binary gold standard inherits ClinVar label noise; mitigated by expert-panel stratification and temporal filtering. "Likely" classes were excluded from the binary gold standard but occur in model outputs; the VUS-as-error convention penalizes models that map "Likely" outputs to Uncertain.
 - **Gold standard A (expert panel)**: ReviewStatus ∈ {reviewed by expert panel, practice guideline} — classifications produced by ClinGen variant-curation expert panels / guideline committees. Dedicated validation set: 900 such variants (P-side 645: Pathogenic 303 + Likely pathogenic 342; B-side 252: Benign 59 + Likely benign 193; 3 compound P/LP labels excluded as unevaluable; all ≥ 2026-01). Of these, 100 were also sampled into the main test set (Table 1, expert-panel stratum); the dedicated-set analysis therefore reports **800 exclusive variants (797 evaluable)** for strict independence, with the full 900 as a robustness check. Gold standard A (broad): expert-panel ∪ {multiple submitters, no conflicts}.
 - **Triangulation sets**: conflicting-interpretation variants (44,815 candidates; 300 sampled) and MaveDB functional extremes (150 loss-of-function: score ≤ −0.8; 150 normal: score ≥ 0.5).
 
 ### Models
 
-Nine models from seven vendors (DeepSeek models: DeepSeek-AI, 2024; Kimi: Kimi Team, 2025; Qwen: Yang et al., 2025), all accessed through OpenAI-compatible APIs (temperature 0, max_tokens 8,192 for reasoning-family models):
+Nine models from seven vendors (DeepSeek models: DeepSeek-AI [15]; Kimi: Kimi Team [16]; Qwen: Yang et al. [17]; MiMo: Xiaomi [18]), all accessed through OpenAI-compatible APIs (temperature 0, max_tokens 8,192 for reasoning-family models):
 
 | Model | Vendor | Type | API endpoint |
 |---|---|---|---|
@@ -292,11 +284,11 @@ Nine models from seven vendors (DeepSeek models: DeepSeek-AI, 2024; Kimi: Kimi T
 | GPT-5.6-terra | OpenAI (US) | reasoning | relay via ai.flashapi.top |
 | Claude Sonnet 5 | Anthropic (US) | chat | relay via ai.flashapi.top |
 
-Six domestic models were selected a priori as the current generation of widely used Chinese commercial LLMs (the previous-generation DeepSeek models serve as an intra-vendor generation control). For international coverage we additionally evaluated three foreign flagship models on the complete test set (identical variants, identical prompts): **Gemini 3 Flash (Google), GPT-5.6-terra (OpenAI), and Claude Sonnet 5 (Anthropic)**, accessed through an OpenAI-compatible relay endpoint (temperature 0, max_tokens 16,384). Because Claude refused 5 of 20 variant-classification queries in pilot testing (25%, medical-safety policy; documented in the archived runner script), all three foreign models received a system prompt establishing the research-benchmark context ("classifications are research outputs, not clinical advice"); after this change refusals dropped to 0%. Domestic models received no system prompt; this prompt asymmetry is disclosed as a limitation. Model names throughout are the API model identifiers exposed by the relay endpoint (gemini-3-flash, gpt-5.6-terra, claude-sonnet-5; all international calls made 2026-08); relay-served model versions cannot be independently verified against vendor release channels, and we report the identifiers verbatim.
+Six domestic models were selected a priori as the current generation of widely used Chinese commercial LLMs (previous-generation DeepSeek models serve as an intra-vendor generation control). Three foreign flagships were additionally evaluated on the complete test set (identical variants and prompts): **Gemini 3 Flash (Google), GPT-5.6-terra (OpenAI), Claude Sonnet 5 (Anthropic)**, via an OpenAI-compatible relay (temperature 0, max_tokens 16,384). Because Claude refused 5 of 20 pilot queries (25%, medical-safety policy; archived runner script), all three received a research-benchmark system prompt ("classifications are research outputs, not clinical advice"); refusals then dropped to 0%. Domestic models received no system prompt; this asymmetry is disclosed as a limitation. Model names are the relay-exposed identifiers (gemini-3-flash, gpt-5.6-terra, claude-sonnet-5; all international calls 2026-08); relay-served versions cannot be verified against vendor channels, and we report the identifiers verbatim.
 
 ### Prompt design
 
-Each variant was presented as a clinical-geneticist task: variant name (HGVS), gene symbol, genomic coordinates, HGVS cDNA/protein (when available), and — in the AF condition — population allele frequencies (AF_ESP/ExAC/1000G). The model was asked to return strict JSON: {classification ∈ five ACMG classes, acmg_rules, confidence ∈ [0,1], evidence_summary, references}. The prompt contained **no** ClinVar significance label, no review status, and no hint of conflict. Outputs were parsed leniently (fenced JSON, single quotes, trailing prose). Unparseable or empty outputs were recorded as parse failures and counted as errors in the all-inclusive metric (equivalent to abstention); rates were V4-pro 0.60% (26 empty, 4 truncated), MiMo 0.10% (incl. 3 endpoint content-filter rejections), Kimi/Qwen ≤ 0.08%.
+Each variant was presented as a clinical-geneticist task: HGVS name, gene symbol, coordinates, cDNA/protein change (when available), and — in the AF condition — population allele frequencies (AF_ESP/ExAC/1000G). The model had to return strict JSON: {classification ∈ five ACMG classes, acmg_rules, confidence ∈ [0,1], evidence_summary, references}. The prompt contained **no** ClinVar significance label, review status, or conflict hint. Outputs were parsed leniently (fenced JSON, single quotes, trailing prose). Parse failures (empty or unparseable) were counted as errors in the all-inclusive metric; rates: V4-pro 0.60% (26 empty, 4 truncated), MiMo 0.10% (incl. 3 content-filter rejections), Kimi/Qwen ≤ 0.08%.
 
 ### Evaluation metrics
 
@@ -312,22 +304,11 @@ Each variant was presented as a clinical-geneticist task: variant name (HGVS), g
 
 1. **AF ablation (n = 400 × 3)**: identical variants/models/prompts, with vs. without the allele-frequency block.
 2. **Conflicting variants (n = 300 × 2)**: same pipeline on variants with conflicting expert classifications; gold standard absent by construction — we analyze abstention behavior and call distributions.
-3. **MaveDB functional task (n = 300 × 2)**: direction-consistency between the model's call (P vs B) and the experimental functional direction (loss-of-function vs normal), on variants with no clinical evidence. MaveDB contains replicate rows per variant; the sample includes 286 unique variants (14 replicate rows), and all reported statistics are unchanged under de-duplication.
+3. **MaveDB functional task (n = 300 × 2)**: consistency between the model's call (P vs B) and the experimental functional direction (loss-of-function vs normal) on variants with no clinical evidence. The sample includes 286 unique variants (14 replicate rows); all statistics are unchanged under de-duplication.
 
 ### Reproducibility
 
-All scripts, prompts, seeds, and every intermediate file needed to reproduce the reported numbers are public in the project repository (see Data availability); the full ClinVar snapshot is regenerated from the public FTP release by the provided scripts. Sampling uses fixed seed 42; all API calls use temperature 0. Analysis code: Python 3 standard library (no ML dependencies).
-
-### Limitations
-
-- Foreign models were accessed through a relay endpoint and received a research-context system prompt that domestic models did not (required to prevent Claude's medical-safety refusals); the prompt-robustness check (§ international extension) shows the behavioral dichotomy is unaffected.
-- Primary gold standard inherits ClinVar label noise; mitigated by the expert-panel stratum and temporal filtering.
-- "Likely" classes were excluded from the binary gold standard but present in model outputs; the VUS=error convention penalizes models that map "Likely" labels to "Uncertain".
-- MaveDB functional direction is a soft validation (loss-of-function ≠ pathogenicity for haploinsufficient genes).
-- Single task (germline SNV/indel classification); no splicing/de novo/structural variants.
-- Variants cluster by gene (2,050 unique genes); independence-assumed tests are therefore optimistic — gene-level bootstrap CIs are reported alongside and preserve all conclusions.
-- The MaveDB functional task is not temporally blinded (DMS datasets published 2019–2025 could appear in training corpora); the observed failure despite possible exposure strengthens, rather than weakens, the no-de-novo-inference conclusion, but the caveat applies.
-- A small share of Pathogenic-detection performance is attributable to loss-of-function surface cues readable directly from the HGVS protein name (nonsense/frameshift notation); we report cued and uncued strata separately (see the surface-cue analysis below).
+All scripts, prompts, seeds, and every intermediate file needed to reproduce the reported numbers are public in the project repository (see Data availability); the full ClinVar snapshot is regenerated from the public FTP release by the provided scripts. Sampling uses fixed seed 42; all API calls use temperature 0. Analysis code uses only the Python 3 standard library (no ML dependencies).
 
 ## Ethics statement
 
@@ -374,42 +355,24 @@ Not applicable.
 
 ## References
 
-AI-CURA, 2026. AI-CURA, an automated LLM workflow for high-accuracy genetic variant classification. Sci. Transl. Med.  doi:10.1126/scitranslmed.adz4172
-
-Basharat, H., Plotkin, S., Le, C., Zhu, K., Pink, M., Alfaro, I., 2025. VariantBench: a framework for evaluating LLMs on justifications for genetic variant interpretation. In: Proc. IJCNLP-AACL 2025 (SRW), Mumbai, India. https://aclanthology.org/2025.ijcnlp-srw.26/
-
-Bordt, S., Srinivas, S., Boreiko, V., von Luxburg, U., 2025. How much can we forget about data contamination? Proc. ICML 2025. https://openreview.net/forum?id=Pf0PaYS9KG
-
-Cheng, J., Novati, G., Pan, M., et al., 2023. Accurate proteome-wide missense variant effect prediction with AlphaMissense. Science 381, eadg7492. doi:10.1126/science.adg7492
-
-DeepSeek-AI, 2024. DeepSeek-V3 technical report. arXiv:2412.19437.
-
-Esposito, D., Weile, J., Shrestha, R., et al., 2019. MaveDB: an open-source platform to distribute and interpret data from multiplexed assays of variant effect. Genome Biol. 20, 223. doi:10.1186/s13059-019-1845-6
-
-Golchin, S., Surdeanu, M., 2023. Time travel in LLMs: tracing data contamination in large language models. In: Findings of EMNLP 2023. arXiv:2308.08493
-
-Lin, K.-H., Kao, T.-H., Wang, L.-C., et al., 2025. Benchmarking large language models GPT-4o, Llama 3.1, and Qwen 2.5 for cancer genetic variant classification. npj Precis. Oncol. 9, 141. doi:10.1038/s41698-025-00935-4
-
-Karczewski, K.J., Francioli, L.C., Tiao, G., et al., 2020. The mutational constraint spectrum quantified from variation in 141,456 humans. Nature 581, 434-443. doi:10.1038/s41586-020-2308-7
-
-Landrum, M.J., Lee, J.M., Benson, M., et al., 2020. ClinVar: improvements to integrating and interpreting data. Nucleic Acids Res. 48, D835-D844. doi:10.1093/nar/gkz972
-
-Kimi Team, 2025. Kimi K2: open agentic intelligence. arXiv:2507.20534.
-
-Yang, A., Li, A., Yang, B., et al., 2025. Qwen3 technical report. arXiv:2505.09388.
-
-Rehm, H.L., Berg, J.S., Brooks, L.D., et al., 2015. ClinGen - the Clinical Genome Resource. N. Engl. J. Med. 372, 2235-2242. doi:10.1056/NEJMsr1406261
-
-Richards, S., Aziz, N., Bale, S., et al., 2015. Standards and guidelines for the interpretation of sequence variants. Genet. Med. 17, 405-424. doi:10.1038/gim.2015.30
-
-Saadat, A., Fellay, J., 2026. Large language models for variant-centric functional evidence mining. arXiv:2604.00075.
-
-Sainz, O., Campos, J.A., García-Ferrero, I., et al., 2023. NLP evaluation in trouble: on the need to measure LLM data contamination for each benchmark. In: Findings of EMNLP 2023. arXiv:2310.18018
-
-Wu, C., MacLeod, I., Su, A.I., 2013. BioGPS and MyGene.info: organizing online, gene-centric information. Nucleic Acids Res. 41, D561-D565. doi:10.1093/nar/gks1114
-
-Xiaomi, 2026. MiMo API documentation. https://mimo.mi.com
-
+[1] Richards S, Aziz N, Bale S, Bick D, Das S, Gastier-Foster J, et al. Standards and guidelines for the interpretation of sequence variants: a joint consensus recommendation of the American College of Medical Genetics and Genomics and the Association for Molecular Pathology. Genetics in Medicine. 2015;17(5):405-424. doi:10.1038/gim.2015.30
+[2] Rehm HL, Berg JS, Brooks LD, Bustamante CD, Evans JP, Landrum MJ, et al. ClinGen — The Clinical Genome Resource. New England Journal of Medicine. 2015;372(23):2235-2242. doi:10.1056/NEJMsr1406261
+[3] Landrum MJ, Chitipiralla S, Brown GR, Chen C, Gu B, Hart J, et al. ClinVar: improvements to accessing data. Nucleic Acids Research. 2020;48(D1):D835-D844. doi:10.1093/nar/gkz972
+[4] Karczewski KJ, Francioli LC, Tiao G, Cummings BB, Alföldi J, Wang Q, et al. The mutational constraint spectrum quantified from variation in 141,456 humans. Nature. 2020;581(7809):434-443. doi:10.1038/s41586-020-2308-7
+[5] Cheng J, Novati G, Pan J, Bycroft C, Žemgulytė A, Applebaum T, et al. Accurate proteome-wide missense variant effect prediction with AlphaMissense. Science. 2023;381(6664):eadg7492. doi:10.1126/science.adg7492
+[6] Ma W, Fong G, Lai J, Wu H, Hue SPY, Ying D, et al. AI-CURA, an automated LLM workflow for high-accuracy genetic variant classification. Science Translational Medicine. 2026;18(855):eadz4172. doi:10.1126/scitranslmed.adz4172
+[7] Lin K, Kao T, Wang L, Kuo C, Chen PC, Chu Y, et al. Benchmarking large language models GPT-4o, llama 3.1, and qwen 2.5 for cancer genetic variant classification. npj Precision Oncology. 2025;9(1):141. doi:10.1038/s41698-025-00935-4
+[8] Basharat H, Plotkin S, Le C, Zhu K, Pink M, Alfaro I. VariantBench: a framework for evaluating LLMs on justifications for genetic variant interpretation. In: Proceedings of the 9th International Joint Conference on Natural Language Processing and the 21st Conference of the Asia-Pacific Chapter of the Association for Computational Linguistics (SRW). Mumbai: ACL; 2025. https://aclanthology.org/2025.ijcnlp-srw.26/
+[9] Saadat A, Fellay J. Large Language Models for Variant-Centric Functional Evidence Mining. arXiv:2604.00075 [preprint]. 2026.
+[10] Sainz O, Campos JA, García-Ferrero I, Etxaniz J, Lacalle OLd, Agirre E. NLP Evaluation in trouble: On the Need to Measure LLM Data Contamination for each Benchmark. arXiv:2310.18018 [preprint]. 2023.
+[11] Bordt S, Srinivas S, Boreiko V, von Luxburg U. How much can we forget about data contamination? In: Proceedings of the 42nd International Conference on Machine Learning (ICML 2025). 2025. https://openreview.net/forum?id=Pf0PaYS9KG
+[12] Golchin S, Surdeanu M. Time Travel in LLMs: Tracing Data Contamination in Large Language Models. arXiv:2308.08493 [preprint]. 2023.
+[13] Esposito D, Weile J, Shendure J, Starita LM, Papenfuss AT, Roth FP, et al. MaveDB: an open-source platform to distribute and interpret data from multiplexed assays of variant effect. Genome Biology. 2019;20(1):223. doi:10.1186/s13059-019-1845-6
+[14] Wu C, MacLeod I, Su AI. BioGPS and MyGene.info: organizing online, gene-centric information. Nucleic Acids Research. 2013;41(D1):D561-D565. doi:10.1093/nar/gks1114
+[15] DeepSeek-AI. DeepSeek-V3 technical report. arXiv:2412.19437 [preprint]. 2024.
+[16] Kimi Team. Kimi K2: open agentic intelligence. arXiv:2507.20534 [preprint]. 2025.
+[17] Yang A, Li A, Yang B, Zhang B, Hui B, Gao B, et al. Qwen3 technical report. arXiv:2505.09388 [preprint]. 2025.
+[18] Xiaomi. MiMo API documentation [Internet]. Beijing: Xiaomi; 2026. Available from: https://mimo.mi.com
 
 ## Figure legends
 

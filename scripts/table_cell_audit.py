@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """table_cell_audit.py — docx 表格单元格级自动审计
 
-解析 submission_JGG.docx 的每张数值表，提取 模型→数值 配对，
+解析 submission_GPB.docx 的每张数值表，提取 模型→数值 配对，
 与原始数据实时重算值逐格比对。零容错：任何一格不符即 FAIL。
 """
 import csv
@@ -98,7 +98,7 @@ for m in MODELS:
             fn += 1
     M[m]['fn'] = fn
 
-d = Document(ROOT / 'docs' / 'submission_JGG.docx')
+d = Document(ROOT / 'docs' / 'submission_GPB.docx')
 T = d.tables
 
 

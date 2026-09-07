@@ -1,14 +1,14 @@
 # -*- coding: utf-8 -*-
 """ref_full_audit.py — 参考文献逐字段审计（Crossref/arXiv 权威元数据比对）
 
-对 manuscript_JGG.md 的每条引用：取 Crossref/arXiv 权威元数据，
+对 manuscript_GPB.md 的每条引用：取 Crossref/arXiv 权威元数据，
 逐字段比对（第一作者姓氏、年份、标题、期刊、卷、页/文章号）。
 """
 import json
 import re
 import urllib.request
 
-MD = r'D:\0806\Bioinformatics_Paper_Project\docs\manuscript_JGG.md'
+MD = r'D:\0806\Bioinformatics_Paper_Project\docs\manuscript_GPB.md'
 UA = {'User-Agent': 'ref-audit/1.0 (mailto:audit@local)'}
 
 

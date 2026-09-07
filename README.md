@@ -32,7 +32,7 @@ github_submission/
 ├── .gitignore
 │
 ├── manuscript/                        # Paper text
-│   └── manuscript_JGG.md              # Submission manuscript (English, canonical)
+│   └── manuscript_GPB.md             # Submission manuscript (English, canonical)
 │
 ├── figures/                           # Publication figures (5 main)
 │   ├── fig1.pdf/png/tiff              # Nine-model dual-metric performance + FP
